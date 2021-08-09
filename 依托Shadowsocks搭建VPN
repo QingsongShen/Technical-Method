@@ -1,4 +1,4 @@
-##材料
+##工具
   1.国外服务器(拥有IPV4地址）
   2.使用系统Ubuntu
 
@@ -56,3 +56,25 @@
   2.报错：Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
         sudo vim /etc/resolv.conf    #添加nameserver 8.8.8.8
         sudo apt-get update
+        
+  3.新版Linux将rc.local服务化，若继续使用，简单方法如下
+        在/ect下新建文件rc.local
+        sudo chmod +x /etc/rc.local     #赋予文件可执行权限
+        vim /etc/rc.local
+            #!/bin/sh -e
+            #
+            # rc.local
+            #
+            # This is executed at the end of each multiuser runlevel.
+            # Make sure that the will "exit 0" on success or any other
+            # value on error.
+            #
+            # In order to enable or disable this just change the execution
+            # bits.
+            #
+            # By default this does nothing.
+            # 下面这条是要开机启动的命令
+            
+            /usr/bin/ssserver -c /etc/shadowsocks.json -d start
+            
+            exit 0
