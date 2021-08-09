@@ -1,0 +1,58 @@
+##材料
+  1.国外服务器(拥有IPV4地址）
+  2.使用系统Ubuntu
+
+##流程
+  1.检查Python版本，控制台输入：Python
+  2.安装pip
+      sudo apt python3-pip
+  3.安装shadowsocks 服务端
+      pip install shadowsocks
+  4.编写配置文件
+      mkdir /etc/shadowsocks
+      vim /etc/shadowsocks/shadowsocks.json
+          {  
+               "server":"my_server_ip"，                   #server: the address your server listens（服务器IP）
+               "local_address": "127.0.0.1",               #local_address: the address your local listens（本地代理地址）
+               "local_port":1080,                          #local_port: local port（本地代理端口）
+               "port_password":                            #port_password: password used for encryption(自己设定的服务器端口和密码)
+            {
+               "8391": "password1",
+               "8392": "password2",
+               "8393": "password3",
+               "8394": "password4"
+            },
+               "timeout":300,                              #timeout: in seconds（超时断开，以秒为单位）
+               "method":"aes-256-cfb",                     #method: default: “aes-256-cfb”, see Encryption（加密方式）
+               "fast_open": false                          #fast_open: use TCP_FASTOPEN, true / false（是否使用TCP）
+           }
+           :wq保存并退出
+  5.启动Shadowsocks
+        #前端启动（不推荐）:
+        ssserver -c /etc/shadowsocks.json
+        #后端启动（推荐）：
+         #开始：
+        ssserver -c /etc/shadowsocks.json -d start
+         #结束：
+        ssserver -c /etc/shadowsocks.json -d stop
+       
+   6.设置开机自启
+       vi /etc/rc.local
+          # 然后将里面的最后带有ssserver的删除（双击字母d注释掉），然后加入
+          /usr/bin/ssserver -c /etc/shadowsocks.json -d start
+      # 再:wq保存退出。
+      
+      
+      
+      
+      
+##Bug解决
+  1.安装pip3报错AttributeError: /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1: undefined symbol: EVP_CIPHER_CTX_cleanup
+      vim /usr/local/lib/python3.9/dist-packages/shadowsocks/crypto/openssl.py
+      """将第52行libcrypto.EVP_CIPHER_CTX_cleanup.argtypes = (c_void_p,)    改为libcrypto.EVP_CIPHER_CTX_reset.argtypes = (c_void_p,)
+         再次找cleanup（全文件共2处，此处位于111行），将libcrypto.EVP_CIPHER_CTX_cleanup(self._ctx)       改为libcrypto.EVP_CIPHER_CTX_reset(self._ctx)
+         :wq保存并退出
+      """
+  2.报错：Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+        sudo vim /etc/resolv.conf    #添加nameserver 8.8.8.8
+        sudo apt-get update
